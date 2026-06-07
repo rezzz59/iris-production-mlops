@@ -1,0 +1,69 @@
+name: CI/CD MLflow Iris Production
+
+# 1. Trigger: Menentukan kapan robot ini bekerja (saat push ke branch main)
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# 2. Variabel Lingkungan global proyek Iris
+env:
+  CSV_URL: "MLproject/train.py"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Langkah A: Mengambil salinan kode terbaru dari repositori GitHub
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Langkah B: Menyiapkan Python versi 3.12.7 di server cloud GitHub
+      - name: Set up Python 3.12.7
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12.7"
+
+      # Langkah C: Menginstal MLflow dan library data science pendukung
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mlflow scikit-learn pandas numpy
+
+      # Langkah D: Melatih model secara otomatis (Autonomous Training)
+      - name: Run mlflow project
+        run: |
+          mlflow run MLproject --env-manager=local
+
+      # Langkah E: Mengambil Run ID eksperimen terbaru hasil training di atas
+      - name: Get latest MLflow run_id
+        run: |
+          RUN_ID=$(ls -td mlruns/0/*/ | head -n 1 | cut -d'/' -f3)
+          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+          echo "Latest run_id didapat: $RUN_ID"
+
+      # Langkah F: Merakit biner model Iris menjadi Docker Image matang
+      - name: Build Docker Model
+        run: |
+          mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "iris-api"
+
+      # Langkah G: Login otomatis ke Docker Hub menggunakan brankas rahasia yang kamu buat tadi
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      # Langkah H: Memberikan stempel/tag nama akun Docker Hub-mu ke Image
+      - name: Tag Docker Image
+        run: |
+          docker tag iris-api ${{ secrets.DOCKER_HUB_USERNAME }}/iris-api:latest
+
+      # Langkah I: Menerbangkan Docker Image ke pangkalan cloud Docker Hub!
+      - name: Push Docker Image
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/iris-api:latest
