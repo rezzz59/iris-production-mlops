@@ -25,10 +25,10 @@ jobs:
 
       - name: Run mlflow project
         env:
-          MLFLOW_TRACKING_URI: "file://./mlruns"
           MLFLOW_ALLOW_FILE_STORE: "true"
         run: |
-          mlflow run MLproject --env-manager=local
+          cd MLproject
+          python train.py
 
       - name: Get latest MLflow run_id
         run: |
