@@ -1,0 +1,5 @@
+name: iris_production_project
+
+entry_points:
+  main:
+    command: "python train.py"
