@@ -39,13 +39,18 @@ with mlflow.start_run() as run:
     signature = infer_signature(X_sample, clf.predict(X_sample))
     
     # 5. Simpan model ke MLflow
-    mlflow.sklearn.log_model(
+    model_info = mlflow.sklearn.log_model(
         sk_model=clf,
         artifact_path="iris_model",
         signature=signature
     )
-    
+
+    # 6. Simpan model URI ke file agar bisa dibaca workflow CI
+    with open("model_uri.txt", "w") as f:
+        f.write(model_info.model_uri)
+
     print("\n=======================================================")
     print("✅ MODEL BERHASIL DILATIH & DICATAT DI MLFLOW!")
     print(f"🆔 RUN ID KAMU: {run.info.run_id}")
+    print(f"📦 MODEL URI: {model_info.model_uri}")
     print("=======================================================")
