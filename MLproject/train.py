@@ -6,6 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 from mlflow.models import infer_signature
 
 # 1. Kunci koneksi ke tracking server lokal (Port 5000)
+mlflow.set_tracking_uri(f"file://{os.path.abspath('mlruns')}")
 mlflow.set_tracking_uri("http://127.0.0.1:5000")
 mlflow.set_experiment("Eksperimen_Iris_Production")
 
