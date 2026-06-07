@@ -4,6 +4,7 @@ from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from mlflow.models import infer_signature
+import os
 
 # 1. Kunci koneksi ke tracking server lokal (Port 5000)
 mlflow.set_tracking_uri(f"file://{os.path.abspath('mlruns')}")
