@@ -26,6 +26,7 @@ jobs:
       - name: Run mlflow project
         env:
           MLFLOW_TRACKING_URI: "file://./mlruns"
+          MLFLOW_ALLOW_FILE_STORE: "true"
         run: |
           mlflow run MLproject --env-manager=local
 
