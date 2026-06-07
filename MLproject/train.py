@@ -6,9 +6,10 @@ from sklearn.ensemble import RandomForestClassifier
 from mlflow.models import infer_signature
 import os
 
-# 1. Kunci koneksi ke tracking server lokal (Port 5000)
-mlflow.set_tracking_uri(f"file://{os.path.abspath('mlruns')}")
-print("ℹ️  Menggunakan local file store (./mlruns)")
+# 1. Gunakan SQLite tracking backend (file-based, tanpa perlu MLflow server)
+db_path = os.path.join(os.path.abspath('.'), 'mlruns', 'mlflow.db')
+mlflow.set_tracking_uri(f"sqlite:///{db_path}")
+print(f"ℹ️  Menggunakan SQLite tracking backend ({db_path})")
 mlflow.set_experiment("Eksperimen_Iris_Production")
 
 # 2. Muat dataset Iris standar
