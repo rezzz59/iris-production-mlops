@@ -1,8 +1,8 @@
 import requests
 import json
 
-# URL mengarah ke port luar Docker yang baru saja kita run (5004)
-url = "http://127.0.0.1:5004/invocations"
+# URL mengarah ke port luar Docker yang baru saja kita run (5000)
+url = "http://127.0.0.1:5000/invocations"
 headers = {"Content-Type": "application/json"}
 
 # Contoh data sampel (4 fitur: sepal length, sepal width, petal length, petal width)
@@ -12,7 +12,7 @@ data = {
         "data": [
             [5.1, 3.5, 1.4, 0.2],  # Sampel data 1
             [6.7, 3.0, 5.2, 2.3], # Sampel data 2
-            [2.7, 3.5, 105.2, 1.3]    
+            [2.7, 3.5, 1.4, 0.3]   # Sampel data 3 (fixed: 105.2 -> 1.4)
         ]
     }
 }

@@ -32,12 +32,23 @@ jobs:
 
       - name: Get latest MLflow run_id
         run: |
-          RUN_ID=$(ls -td MLproject/mlruns/0/*/ | head -n 1 | cut -d'/' -f3)
-          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
-          echo "Latest run_id didapat: $RUN_ID"
+          cd MLproject
+          # Extract run_id from mlruns metadata directory (newest first)
+          LATEST_RUN=$(find mlruns/0 -name 'meta.yaml' -exec dirname {} \; 2>/dev/null | sort -r | head -n 1)
+          if [ -n "$LATEST_RUN" ]; then
+            RUN_ID=$(basename "$LATEST_RUN")
+            echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+            echo "Latest run_id didapat: $RUN_ID"
+          else
+            echo "No MLflow runs found" >&2
+            exit 1
+          fi
 
       - name: Build Docker Model
+        env:
+          MLFLOW_TRACKING_URI: "file://./mlruns"
         run: |
+          cd MLproject
           mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "iris-api"
 
       - name: Log in to Docker Hub
